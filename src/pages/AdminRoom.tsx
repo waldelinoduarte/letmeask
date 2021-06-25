@@ -8,6 +8,9 @@ import { database } from '../services/firebase';
 
 import logoImg from '../assets/images/logo.svg';
 import deleteImg from '../assets/images/delete.svg';
+import checkImg from '../assets/images/check.svg';
+import answerImg from '../assets/images/answer.svg';
+
 import '../styles/room.scss'
 
 type RoomParams = {
@@ -25,6 +28,18 @@ async function handleEndRoom() {
     endedAt: new Date()
   });
   history.push('/');
+}
+
+async function handleCheckQuestionAsAnswered(questionId: string) {
+    await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+      isAnswered: true,
+    });
+}
+
+async function handleHighlightQuestion(questionId: string) {
+  await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+    isHighlighted: true,
+  });
 }
 
 async function handleDeleteQuestion(questionId: string) {
@@ -62,7 +77,27 @@ async function handleDeleteQuestion(questionId: string) {
               key={question.id}
               content={question.content}
               author={question.author}
+              isAnswered={question.isAnswered}
+              isHighlighted={question.isHighlighted}
             >
+              {!question.isAnswered && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => handleCheckQuestionAsAnswered(question.id)}
+                  >
+                    <img src={checkImg} alt="Marcar perguntas como respondidas" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleHighlightQuestion(question.id)}
+                  >
+                    <img src={answerImg} alt="Dar destaque à pergunta." />
+                  </button>
+                </>
+              )}
+             
               <button
                 type="button"
                 onClick={() => handleDeleteQuestion(question.id)}
